@@ -1,3 +1,3 @@
-module github.com/gopikchr/golemon
+module github.com/t73fde/golemon
 
-go 1.17
+go 1.19

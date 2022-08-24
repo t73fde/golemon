@@ -165,13 +165,12 @@ type stateOrRuleUnion struct {
 
 /* Every shift or reduce operation is stored as one of the following */
 type action struct {
-	sp      *symbol /* The look-ahead symbol */
-	typ     e_action
-	x       stateOrRuleUnion
-	spOpt   *symbol /* SHIFTREDUCE optimization to this symbol */
-	next    *action /* Next action for this state */
-	collide *action /* Next action with the same hash */
-	index   int     /// creation index, used for actioncmp
+	sp    *symbol /* The look-ahead symbol */
+	typ   e_action
+	x     stateOrRuleUnion
+	spOpt *symbol /* SHIFTREDUCE optimization to this symbol */
+	next  *action /* Next action for this state */
+	index int     /// creation index, used for actioncmp
 }
 
 /* Each state of the generated parser's finite state machine
@@ -1094,9 +1093,7 @@ var (
 )
 
 /* Return a pointer to a new configuration */
-func newconfig() *config {
-	return &config{}
-}
+func newconfig() *config { return &config{} }
 
 /* The configuration "old" is no longer used */
 func deleteconfig(old *config) {
@@ -1120,7 +1117,6 @@ func Configlist_reset() {
 	basis = nil
 	basisend = &basis
 	Configtable_clear()
-	return
 }
 
 func PrintConfigList() {
@@ -1263,8 +1259,7 @@ func Configlist_return() *config {
 /* Return a pointer to the head of the configuration list and
 ** reset the list */
 func Configlist_basis() *config {
-	var old *config
-	old = basis
+	old := basis
 	basis = nil
 	basisend = nil
 	return old
@@ -1280,7 +1275,6 @@ func Configlist_eat(cfp *config) {
 		cfp.fws = nil
 		deleteconfig(cfp)
 	}
-	return
 }
 
 /***************** From the file "error.c" *********************************/
@@ -1591,7 +1585,6 @@ func main() {
 /// We split merge into its three uses. Generics will come in handy here.
 
 func merge__action(a *action, b *action) *action {
-
 	if a == nil {
 		return b
 	}
@@ -1633,7 +1626,6 @@ func merge__action(a *action, b *action) *action {
 }
 
 func merge__config(a *config, b *config) *config {
-
 	if a == nil {
 		return b
 	}
@@ -1675,7 +1667,6 @@ func merge__config(a *config, b *config) *config {
 }
 
 func merge__config_basis(a *config, b *config) *config {
-
 	if a == nil {
 		return b
 	}
@@ -2384,7 +2375,7 @@ func eval_preprocessor_boolean(z []rune, lineno int) int {
 	var zi rune
 	okTerm := true
 
-	for i := 0; i < len(z); i++ {
+	for i = 0; i < len(z); i++ {
 		zi = z[i]
 		var zi1 rune
 		if i+1 < len(z) {
@@ -3002,24 +2993,18 @@ func PrintAction(
 	result := true
 	switch ap.typ {
 	case SHIFT:
-		{
-			stp := ap.x.stp
-			fmt.Fprintf(fp, "%*s shift        %-7d", indent, ap.sp.name, stp.statenum)
-		}
+		stp := ap.x.stp
+		fmt.Fprintf(fp, "%*s shift        %-7d", indent, ap.sp.name, stp.statenum)
 
 	case REDUCE:
-		{
-			rp := ap.x.rp
-			fmt.Fprintf(fp, "%*s reduce       %-7d", indent, ap.sp.name, rp.iRule)
-			RulePrint(fp, rp, -1)
-		}
+		rp := ap.x.rp
+		fmt.Fprintf(fp, "%*s reduce       %-7d", indent, ap.sp.name, rp.iRule)
+		RulePrint(fp, rp, -1)
 
 	case SHIFTREDUCE:
-		{
-			rp := ap.x.rp
-			fmt.Fprintf(fp, "%*s shift-reduce %-7d", indent, ap.sp.name, rp.iRule)
-			RulePrint(fp, rp, -1)
-		}
+		rp := ap.x.rp
+		fmt.Fprintf(fp, "%*s shift-reduce %-7d", indent, ap.sp.name, rp.iRule)
+		RulePrint(fp, rp, -1)
 
 	case ACCEPT:
 		fmt.Fprintf(fp, "%*s accept", indent, ap.sp.name)
@@ -3163,7 +3148,6 @@ func ReportOutput(lemp *lemon) {
 		fmt.Fprintf(fp, "\n")
 	}
 	fp.Close()
-	return
 }
 
 /* Search for the file "name" which is in the same directory as
@@ -3349,7 +3333,6 @@ func tplt_print(out *os.File, lemp *lemon, str string, lineno *int) {
 		(*lineno)++
 		tplt_linedir(out, *lineno, lemp.outname)
 	}
-	return
 }
 
 /*
@@ -3409,7 +3392,6 @@ func emit_destructor_code(
 	}
 	fmt.Fprintf(out, "}\n")
 	(*lineno)++
-	return
 }
 
 /*
@@ -3584,8 +3566,7 @@ func translate_code(lemp *lemon, rp *rule) int {
 			if i > 0 {
 				if rp.lhsalias != "" && rp.lhsalias == rp.rhsalias[i] {
 					ErrorMsg(lemp.filename, rp.ruleline,
-						"%s(%s) has the same label as the LHS but is not the left-most ",
-						"symbol on the RHS.",
+						"%s(%s) has the same label as the LHS but is not the left-most symbol on the RHS.",
 						rp.rhs[i].name, rp.rhsalias[i])
 					lemp.errorcnt++
 				}
@@ -3973,8 +3954,8 @@ func ReportTable(lemp *lemon,
 
 	if lemp.arg != "" {
 		prefix := findPrefix(lemp.arg)
-		defines.addDefine("ParseARG_SDECL", fmt.Sprintf("%s", lemp.arg))
-		defines.addDefine("ParseARG_PDECL", fmt.Sprintf(",%s", lemp.arg))
+		defines.addDefine("ParseARG_SDECL", lemp.arg)
+		defines.addDefine("ParseARG_PDECL", lemp.arg)
 		defines.addDefine("ParseARG_PARAM", fmt.Sprintf(",%s", prefix))
 		defines.addDefine("ParseARG_FETCH", fmt.Sprintf("%s := yypParser.%s; _ = %s", prefix, prefix, prefix))
 		defines.addDefine("ParseARG_STORE", fmt.Sprintf("yypParser.%s=%s", prefix, prefix))
@@ -3987,9 +3968,9 @@ func ReportTable(lemp *lemon,
 	}
 	if lemp.ctx != "" {
 		prefix := findPrefix(lemp.ctx)
-		defines.addDefine("ParseCTX_SDECL", fmt.Sprintf("%s", lemp.ctx))
-		defines.addDefine("ParseCTX_PDECL", fmt.Sprintf("%s", lemp.ctx))
-		defines.addDefine("ParseCTX_PARAM", fmt.Sprintf("%s", prefix))
+		defines.addDefine("ParseCTX_SDECL", lemp.ctx)
+		defines.addDefine("ParseCTX_PDECL", lemp.ctx)
+		defines.addDefine("ParseCTX_PARAM", prefix)
 		defines.addDefine("ParseCTX_FETCH", fmt.Sprintf("%s := yypParser.%s; _ = %s\n", prefix, prefix, prefix))
 		defines.addDefine("ParseCTX_STORE", fmt.Sprintf("yypParser.%s=%s\n", prefix, prefix))
 	} else {
@@ -5432,11 +5413,7 @@ func runesStringEqual(rs []rune, s string) bool {
 		count++
 	}
 
-	if count != len(rs) {
-		return false
-	}
-
-	return true
+	return count == len(rs)
 }
 
 // Sorts
@@ -5504,27 +5481,13 @@ func PrintRule(lemp *lemon, rp *rule) {
 	}
 }
 
-type foostate struct {
-	bp          *config /* The basis configurations for this state */
-	cfp         *config /* All configurations in this set */
-	statenum    int     /* Sequential number for this state */
-	ap          *action /* List of actions for this state */
-	nTknAct     int     /* Number of actions on terminals and nonterminals */
-	nNtAct      int
-	iTknOfst    int /* yyaction[] offset for terminals and nonterms */
-	iNtOfst     int
-	iDfltReduce int   /* Default action is to REDUCE by this rule */
-	pDfltReduce *rule /* The default REDUCE rule. */
-	autoReduce  bool  /* True if this is an auto-reduce state */
-}
-
 func PrintState(lemp *lemon, sp *state) {
 	fmt.Printf(" %s(%d) - %d %d %d %d %v", sp.bp.rp.lhs.name, sp.statenum, sp.nTknAct, sp.nNtAct, sp.iTknOfst, sp.iDfltReduce, sp.autoReduce)
 	if sp.bp != nil {
 		fmt.Printf(" %d.%d", sp.bp.rp.iRule, sp.bp.dot)
 	}
 	if sp.pDfltReduce != nil {
-		fmt.Printf(" %r", sp.pDfltReduce.iRule)
+		fmt.Printf(" %d", sp.pDfltReduce.iRule)
 	}
 	fmt.Printf("\n")
 	if sp.cfp != nil {

@@ -1,3 +1,11 @@
+# t73fde/golemon
+
+This is a fork of gopikchr/golemon to integrate it into the build chain of [Zettelstore](https://zettelstore.de).
+
+Main changes:
+
+* Remove warnings given by VSCode
+
 # Go lemon port
 
 A port of the [Lemon Parser](https://www.sqlite.org/lemon.html) to Go.
