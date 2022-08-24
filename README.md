@@ -5,6 +5,7 @@ This is a fork of gopikchr/golemon to integrate it into the build chain of [Zett
 Main changes:
 
 * Remove warnings given by VSCode
+* Embed default template into executable
 
 # Go lemon port
 

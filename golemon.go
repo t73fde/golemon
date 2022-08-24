@@ -3,12 +3,13 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"embed"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
-	"path/filepath"
 	"regexp"
 	"runtime"
 	"sort"
@@ -3150,27 +3151,6 @@ func ReportOutput(lemp *lemon) {
 	fp.Close()
 }
 
-/* Search for the file "name" which is in the same directory as
-** the executable */
-func pathsearch(argv0 string, name string, modemask int) string {
-	dir := filepath.Dir(argv0)
-	if dir != "." {
-		return filepath.Join(dir, name)
-	} else {
-		path := os.Getenv("PATH")
-		for _, dir := range filepath.SplitList(path) {
-			if dir == "" {
-				dir = "."
-			}
-			path := filepath.Join(dir, name)
-			if exists, _ := Exists(path); exists {
-				return path
-			}
-		}
-	}
-	return ""
-}
-
 /* Given an action, compute the integer value for that action
 ** which is to be put in the action table of the generated machine.
 ** Return negative if no action should be generated.
@@ -3252,10 +3232,13 @@ func tplt_skip_header(in *bufio.Reader, lineno *int) {
 	}
 }
 
+//go:embed "lempar.go.tpl"
+var templateFS embed.FS
+
 /* The next function finds the template file and opens it, returning
 ** a pointer to the opened file. */
-func tplt_open(lemp *lemon) *os.File {
-	templatename := "lempar.go.tpl"
+func tplt_open(lemp *lemon) (in fs.File) {
+	const templatename = "lempar.go.tpl"
 
 	/* first, see if user specified a template filename on the command line. */
 	if user_templatename != "" {
@@ -3283,21 +3266,16 @@ func tplt_open(lemp *lemon) *os.File {
 	} else {
 		buf = fmt.Sprintf("%s.lt", lemp.filename)
 	}
+
+	var err error
 	var tpltname string
-	if _, err := os.ReadFile(buf); err == nil {
+	if _, err = os.ReadFile(buf); err == nil {
 		tpltname = buf
-	} else if _, err := os.ReadFile(templatename); err == nil {
-		tpltname = templatename
+		in, err = os.Open(tpltname)
 	} else {
-		tpltname = pathsearch(lemp.argv0, templatename, 0)
+		tpltname = templatename
+		in, err = templateFS.Open(tpltname)
 	}
-	if tpltname == "" {
-		fmt.Fprintf(os.Stderr, "Can't find the parser driver template file \"%s\".\n",
-			templatename)
-		lemp.errorcnt++
-		return nil
-	}
-	in, err := os.Open(tpltname)
 	if err != nil {
 		in = nil
 		fmt.Fprintf(os.Stderr, "Can't open the template file \"%s\".\n", tpltname)
